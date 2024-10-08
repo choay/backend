@@ -1,4 +1,3 @@
-// models/achat.js
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
@@ -8,6 +7,10 @@ module.exports = (sequelize) => {
       autoIncrement: true,
       primaryKey: true,
     },
+    paymentIntentId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     price: {
       type: DataTypes.FLOAT,
       allowNull: false,
@@ -15,36 +18,26 @@ module.exports = (sequelize) => {
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'Users', // Ensure this matches the actual table name
-        key: 'id',
-      },
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
     },
     cursusId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'Cursus', // Ensure this matches the actual table name
-        key: 'id',
-      },
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
+      allowNull: true, // Peut être null si achat d'une leçon individuelle
     },
     lessonId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'Lessons', // Ensure this matches the actual table name
-        key: 'id',
-      },
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
+      allowNull: true,
     },
     lessonIds: {
-      type: DataTypes.JSON, // Store lesson IDs as JSON
+      type: DataTypes.TEXT, // Remplacer JSON par TEXT pour compatibilité MySQL
       allowNull: true,
+      get() {
+        const value = this.getDataValue('lessonIds');
+        return value ? JSON.parse(value) : []; // Convertir la chaîne en tableau
+      },
+      set(value) {
+        this.setDataValue('lessonIds', JSON.stringify(value)); // Convertir le tableau en JSON
+      },
     },
   });
 };
+
